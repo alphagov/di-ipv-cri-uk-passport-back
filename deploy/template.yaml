@@ -434,7 +434,11 @@ Resources:
           KeyType: "HASH"
       TimeToLiveSpecification:
         AttributeName: "ttl"
-        Enabled: "TRUE"
+        Enabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+        KMSMasterKeyId: !GetAtt DynamoDBKmsKey.Arn
 
   CRIPassportAuthCodesTable:
     Type: AWS::DynamoDB::Table
@@ -449,7 +453,11 @@ Resources:
           KeyType: "HASH"
       TimeToLiveSpecification:
         AttributeName: "ttl"
-        Enabled: "TRUE"
+        Enabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+        KMSMasterKeyId: !GetAtt DynamoDBKmsKey.Arn
 
   CRIPassportAccessTokensTable:
     Type: AWS::DynamoDB::Table
@@ -464,8 +472,39 @@ Resources:
           KeyType: "HASH"
       TimeToLiveSpecification:
         AttributeName: "ttl"
-        Enabled: "TRUE"
+        Enabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+        KMSMasterKeyId: !GetAtt DynamoDBKmsKey.Arn
 
+  DynamoDBKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action:
+              - kms:*
+            Resource: "*"
+          - Effect: Allow
+            Principal:
+              Service: !Sub "dynamodb.${AWS::Region}.amazonaws.com"
+            Action:
+              - "kms:Encrypt*"
+              - "kms:Decrypt*"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:Describe*"
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "kms:CallerAccount": !Sub "${AWS::AccountId}"
+                "kms:ViaService": !Sub "dynamodb.${AWS::Region}.amazonaws.com"
 Outputs:
   IPVCriUkPassportAPIGatewayID:
     Description: CRI UK Passport API Gateway ID
