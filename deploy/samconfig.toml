@@ -28,3 +28,75 @@ capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Environment=\"development-c\""
 parallel = "true"
 
+[dev-tom.deploy.parameters]
+stack_name = "tom-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "tom-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-tom\""
+
+[dev-danh.deploy.parameters]
+stack_name = "danh-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "danh-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-danh\""
+
+[dev-danw.deploy.parameters]
+stack_name = "danw-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "danw-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-danw\""
+
+[dev-danp.deploy.parameters]
+stack_name = "danp-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "danp-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-danp\""
+
+[dev-chris.deploy.parameters]
+stack_name = "chris-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "chris-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-chris\""
+
+[dev-amrit.deploy.parameters]
+stack_name = "amrit-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "amrit-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-amrit\""
+
+[dev-lai.deploy.parameters]
+stack_name = "lai-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "lai-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-lai\""
+
+[dev-sunil.deploy.parameters]
+stack_name = "sunil-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "sunil-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-sunil\""
+
+[dev-kerr.deploy.parameters]
+stack_name = "kerr-ipv-cri-uk-passport-back-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ec647gpjuo2w"
+s3_prefix = "kerr-ipv-cri-uk-passport-back-stack"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"dev-kerr\""
+
