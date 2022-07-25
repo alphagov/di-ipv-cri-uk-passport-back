@@ -13,10 +13,10 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.ssm.model.SsmException;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.exceptions.JarValidationException;
 import uk.gov.di.ipv.cri.passport.library.exceptions.RecoverableJarValidationException;
 import uk.gov.di.ipv.cri.passport.library.helpers.JwtHelper;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.service.KmsRsaDecrypter;
 
 import java.net.URI;
@@ -25,6 +25,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
+
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.PASSPORT_CRI_CLIENT_AUDIENCE;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.PASSPORT_CRI_CLIENT_AUTH_MAX_TTL;
 
 public class JarValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(JarValidator.class);
@@ -64,8 +67,7 @@ public class JarValidator {
         URI redirectUri = validateRedirectUri(claimsSet, clientId);
 
         try {
-            JWTClaimsSet validatedClaimSet = getValidatedClaimSet(signedJWT, clientId);
-            return validatedClaimSet;
+            return getValidatedClaimSet(signedJWT, clientId);
         } catch (JarValidationException e) {
             String state = claimsSet.getStringClaim(STATE);
             throw new RecoverableJarValidationException(
@@ -146,7 +148,7 @@ public class JarValidator {
     private JWTClaimsSet getValidatedClaimSet(SignedJWT signedJWT, String clientId)
             throws JarValidationException {
 
-        String criAudience = configurationService.getAudienceForClients();
+        String criAudience = configurationService.getSsmParameter(PASSPORT_CRI_CLIENT_AUDIENCE);
         String clientIssuer = configurationService.getClientIssuer(clientId);
 
         DefaultJWTClaimsVerifier<?> verifier =
@@ -176,7 +178,8 @@ public class JarValidator {
     }
 
     private void validateMaxAllowedJarTtl(JWTClaimsSet claimsSet) throws JarValidationException {
-        String maxAllowedTtl = configurationService.getMaxClientAuthTokenTtl();
+        String maxAllowedTtl =
+                configurationService.getSsmParameter(PASSPORT_CRI_CLIENT_AUTH_MAX_TTL);
         LocalDateTime maximumExpirationTime =
                 LocalDateTime.now().plusSeconds(Long.parseLong(maxAllowedTtl));
         LocalDateTime expirationTime =

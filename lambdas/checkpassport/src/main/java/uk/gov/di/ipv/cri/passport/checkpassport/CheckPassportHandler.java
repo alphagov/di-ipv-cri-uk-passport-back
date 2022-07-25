@@ -24,6 +24,7 @@ import uk.gov.di.ipv.cri.passport.library.auditing.AuditExtensions;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditExtensionsVcEvidence;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditRestricted;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditRestrictedVcCredentialSubject;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.domain.AuthParams;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsPayload;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsResponse;
@@ -44,7 +45,6 @@ import uk.gov.di.ipv.cri.passport.library.helpers.RequestHelper;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportCheckDao;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportSessionItem;
 import uk.gov.di.ipv.cri.passport.library.service.AuditService;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.service.DcsCryptographyService;
 import uk.gov.di.ipv.cri.passport.library.service.PassportService;
 import uk.gov.di.ipv.cri.passport.library.service.PassportSessionService;
@@ -59,6 +59,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.MAXIMUM_ATTEMPT_COUNT;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.VERIFIABLE_CREDENTIAL_ISSUER;
 
 public class CheckPassportHandler
         implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
@@ -207,7 +210,9 @@ public class CheckPassportHandler
                 passportSessionService.getPassportSession(passportSessionId).getAttemptCount();
 
         if (unwrappedDcsResponse.isValid()
-                || attemptCount >= configurationService.getMaximumAttemptCount()) {
+                || attemptCount
+                        >= Integer.parseInt(
+                                configurationService.getSsmParameter(MAXIMUM_ATTEMPT_COUNT))) {
             return ApiGatewayResponseGenerator.proxyJsonResponse(
                     HttpStatus.SC_OK, Map.of(RESULT, RESULT_FINISH));
         }
@@ -226,7 +231,7 @@ public class CheckPassportHandler
         VerifiableCredential vc = VerifiableCredential.fromPassportCheckDao(passportCheckDao);
 
         CredentialSubject credentialSubject = vc.getCredentialSubject();
-        String componentId = configurationService.getVerifiableCredentialIssuer();
+        String componentId = configurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER);
         AuditEventTypes eventType = AuditEventTypes.IPV_PASSPORT_CRI_REQUEST_SENT;
         AuditEventUser user = new AuditEventUser(userId, null);
         AuditRestricted restricted =
@@ -236,7 +241,7 @@ public class CheckPassportHandler
                         credentialSubject.getPassport());
         AuditExtensions extensions =
                 new AuditExtensionsVcEvidence(
-                        configurationService.getVerifiableCredentialIssuer(), null);
+                        configurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER), null);
         return new AuditEvent(eventType, componentId, user, restricted, extensions);
     }
 
@@ -312,7 +317,6 @@ public class CheckPassportHandler
         } catch (CertificateException
                 | java.text.ParseException
                 | JOSEException
-                | JsonProcessingException
                 | IpvCryptoException e) {
             LOGGER.error(("Failed to unwrap response from DCS: " + e.getMessage()));
             throw new OAuthHttpResponseExceptionWithErrorBody(

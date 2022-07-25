@@ -19,11 +19,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditEvent;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditEventTypes;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.domain.AuthParams;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsPayload;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsResponse;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsSignedEncryptedResponse;
-import uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.ContraIndicators;
 import uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.Evidence;
 import uk.gov.di.ipv.cri.passport.library.error.ErrorResponse;
 import uk.gov.di.ipv.cri.passport.library.exceptions.EmptyDcsResponseException;
@@ -31,7 +31,6 @@ import uk.gov.di.ipv.cri.passport.library.exceptions.SqsException;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportCheckDao;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportSessionItem;
 import uk.gov.di.ipv.cri.passport.library.service.AuditService;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.service.DcsCryptographyService;
 import uk.gov.di.ipv.cri.passport.library.service.PassportService;
 import uk.gov.di.ipv.cri.passport.library.service.PassportSessionService;
@@ -52,6 +51,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.MAXIMUM_ATTEMPT_COUNT;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.VERIFIABLE_CREDENTIAL_ISSUER;
 
 @ExtendWith(MockitoExtension.class)
 class CheckPassportHandlerTest {
@@ -65,8 +66,6 @@ class CheckPassportHandlerTest {
     public static final String EXPIRY_DATE = "2024-09-03";
     public static final Evidence VALID_PASSPORT_EVIDENCE =
             new Evidence(UUID.randomUUID().toString(), 4, 2, null);
-    public static final Evidence INVALID_PASSPORT_EVIDENCE =
-            new Evidence(UUID.randomUUID().toString(), 4, 0, List.of(ContraIndicators.D02));
 
     private final ObjectMapper objectMapper =
             new ObjectMapper().registerModule(new JavaTimeModule());
@@ -88,7 +87,7 @@ class CheckPassportHandlerTest {
 
     @Mock Context context;
     @Mock PassportService passportService;
-    @Mock ConfigurationService configurationService;
+    @Mock ConfigurationService mockConfigurationService;
     @Mock DcsCryptographyService dcsCryptographyService;
     @Mock PassportSessionService passportSessionService;
     @Mock AuditService auditService;
@@ -101,7 +100,7 @@ class CheckPassportHandlerTest {
         underTest =
                 new CheckPassportHandler(
                         passportService,
-                        configurationService,
+                        mockConfigurationService,
                         dcsCryptographyService,
                         auditService,
                         passportSessionService);
@@ -188,7 +187,10 @@ class CheckPassportHandlerTest {
                     EmptyDcsResponseException {
         mockDcsResponse(invalidDcsResponse);
         mockPassportSessionItem(0);
-        when(configurationService.getMaximumAttemptCount()).thenReturn(2);
+        when(mockConfigurationService.getSsmParameter(MAXIMUM_ATTEMPT_COUNT))
+                .thenReturn(String.valueOf(2));
+        when(mockConfigurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER))
+                .thenReturn("test");
 
         APIGatewayProxyRequestEvent event =
                 getApiGatewayProxyRequestEvent(
@@ -205,7 +207,10 @@ class CheckPassportHandlerTest {
                     EmptyDcsResponseException {
         mockDcsResponse(invalidDcsResponse);
         mockPassportSessionItem(2);
-        when(configurationService.getMaximumAttemptCount()).thenReturn(2);
+        when(mockConfigurationService.getSsmParameter(MAXIMUM_ATTEMPT_COUNT))
+                .thenReturn(String.valueOf(2));
+        when(mockConfigurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER))
+                .thenReturn("test");
 
         APIGatewayProxyRequestEvent event =
                 getApiGatewayProxyRequestEvent(

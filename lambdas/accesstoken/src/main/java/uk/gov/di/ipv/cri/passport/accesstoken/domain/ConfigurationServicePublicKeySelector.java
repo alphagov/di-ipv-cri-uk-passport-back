@@ -8,7 +8,7 @@ import com.nimbusds.oauth2.sdk.auth.verifier.ClientCredentialsSelector;
 import com.nimbusds.oauth2.sdk.auth.verifier.Context;
 import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 
 import java.security.PublicKey;
 import java.text.ParseException;

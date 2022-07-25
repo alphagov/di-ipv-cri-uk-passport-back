@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsPayload;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsSignedEncryptedResponse;
 import uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.Evidence;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.di.ipv.cri.passport.library.config.EnvironmentVariable.DCS_POST_URL_PARAM;
 
 @ExtendWith(MockitoExtension.class)
 class PassportServiceTest {
@@ -59,7 +61,8 @@ class PassportServiceTest {
     void shouldPostToDcsEndpoint() throws IOException, EmptyDcsResponseException {
         String expectedPayload = "Test";
         HttpEntity httpEntity = new StringEntity(expectedPayload);
-        when(configurationService.getDCSPostUrl()).thenReturn(CHECK_PASSPORT_URI);
+        when(configurationService.getEnvironmentVariable(DCS_POST_URL_PARAM))
+                .thenReturn(CHECK_PASSPORT_URI);
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -81,7 +84,8 @@ class PassportServiceTest {
     @Test
     void shouldReturnAnErrorWhenDCSRespondsWithNon200() throws IOException {
         String expectedPayload = "Test";
-        when(configurationService.getDCSPostUrl()).thenReturn(CHECK_PASSPORT_URI);
+        when(configurationService.getEnvironmentVariable(DCS_POST_URL_PARAM))
+                .thenReturn(CHECK_PASSPORT_URI);
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
         when(statusLine.getStatusCode()).thenReturn(500);
         when(httpClient.execute(any(HttpPost.class))).thenReturn(httpResponse);
@@ -99,7 +103,8 @@ class PassportServiceTest {
 
     @Test
     void shouldReturnThrowExceptionWhenResponseFromDcsIsEmpty() throws IOException {
-        when(configurationService.getDCSPostUrl()).thenReturn(CHECK_PASSPORT_URI);
+        when(configurationService.getEnvironmentVariable(DCS_POST_URL_PARAM))
+                .thenReturn(CHECK_PASSPORT_URI);
         when(httpClient.execute(any(HttpPost.class))).thenReturn(null);
         when(jwsObject.serialize()).thenReturn("Test");
         EmptyDcsResponseException emptyDcsResponseException =

@@ -25,6 +25,7 @@ import uk.gov.di.ipv.cri.passport.library.auditing.AuditExtensions;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditExtensionsVcEvidence;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditRestricted;
 import uk.gov.di.ipv.cri.passport.library.auditing.AuditRestrictedVcCredentialSubject;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.CredentialSubject;
 import uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.VerifiableCredential;
 import uk.gov.di.ipv.cri.passport.library.error.ErrorResponse;
@@ -38,13 +39,15 @@ import uk.gov.di.ipv.cri.passport.library.persistence.item.AccessTokenItem;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportCheckDao;
 import uk.gov.di.ipv.cri.passport.library.service.AccessTokenService;
 import uk.gov.di.ipv.cri.passport.library.service.AuditService;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.service.DcsPassportCheckService;
 import uk.gov.di.ipv.cri.passport.library.service.PassportSessionService;
 
 import java.time.Instant;
 import java.util.Date;
 
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.MAX_JWT_TTL;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.VERIFIABLE_CREDENTIAL_ISSUER;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.VERIFIABLE_CREDENTIAL_SIGNING_KEY_ID;
 import static uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.VerifiableCredentialConstants.VC_CLAIM;
 
 public class IssueCredentialHandler
@@ -84,7 +87,8 @@ public class IssueCredentialHandler
                 new AuditService(AuditService.getDefaultSqsClient(), configurationService);
         this.passportSessionService = new PassportSessionService(configurationService);
         this.kmsSigner =
-                new KmsSigner(configurationService.getVerifiableCredentialKmsSigningKeyId());
+                new KmsSigner(
+                        configurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_SIGNING_KEY_ID));
     }
 
     @Override
@@ -187,7 +191,7 @@ public class IssueCredentialHandler
 
     private AuditEvent createAuditEvent(VerifiableCredential vc, PassportCheckDao passportCheck) {
         CredentialSubject credentialSubject = vc.getCredentialSubject();
-        String componentId = configurationService.getVerifiableCredentialIssuer();
+        String componentId = configurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER);
         AuditEventTypes eventType = AuditEventTypes.IPV_PASSPORT_CRI_VC_ISSUED;
         AuditEventUser user = new AuditEventUser(passportCheck.getUserId(), null);
         AuditRestricted restricted =
@@ -197,7 +201,8 @@ public class IssueCredentialHandler
                         credentialSubject.getPassport());
         AuditExtensions extensions =
                 new AuditExtensionsVcEvidence(
-                        configurationService.getVerifiableCredentialIssuer(), vc.getEvidence());
+                        configurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER),
+                        vc.getEvidence());
         return new AuditEvent(eventType, componentId, user, restricted, extensions);
     }
 
@@ -208,12 +213,16 @@ public class IssueCredentialHandler
         JWTClaimsSet claimsSet =
                 new JWTClaimsSet.Builder()
                         .subject(passportCheck.getUserId())
-                        .issuer(configurationService.getVerifiableCredentialIssuer())
+                        .issuer(configurationService.getSsmParameter(VERIFIABLE_CREDENTIAL_ISSUER))
                         .audience(configurationService.getClientIssuer(passportCheck.getClientId()))
                         .notBeforeTime(new Date(now.toEpochMilli()))
                         .expirationTime(
                                 new Date(
-                                        now.plusSeconds(configurationService.maxJwtTtl())
+                                        now.plusSeconds(
+                                                        Long.parseLong(
+                                                                configurationService
+                                                                        .getSsmParameter(
+                                                                                MAX_JWT_TTL)))
                                                 .toEpochMilli()))
                         .claim(VC_CLAIM, verifiableCredential)
                         .build();

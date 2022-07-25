@@ -8,18 +8,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.persistence.DataStore;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.AuthorizationCodeItem;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 
 import java.util.stream.Stream;
 
@@ -30,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.BACKEND_SESSION_TTL;
 
 @ExtendWith(MockitoExtension.class)
 class DataStoreTest {
@@ -38,8 +36,6 @@ class DataStoreTest {
     @Mock private DynamoDbEnhancedClient mockDynamoDbEnhancedClient;
     @Mock private DynamoDbTable<AuthorizationCodeItem> mockDynamoDbTable;
     @Mock private PageIterable<AuthorizationCodeItem> mockPageIterable;
-    @Mock private DynamoDbIndex<AuthorizationCodeItem> mockIndex;
-    @Mock private SdkIterable<Page<AuthorizationCodeItem>> mockIterable;
     @Mock private ConfigurationService mockConfigurationService;
 
     private AuthorizationCodeItem authorizationCodeItem;
@@ -65,6 +61,8 @@ class DataStoreTest {
 
     @Test
     void shouldPutItemIntoDynamoDbTable() {
+        when(mockConfigurationService.getSsmParameter(BACKEND_SESSION_TTL)).thenReturn("100");
+
         dataStore.create(authorizationCodeItem);
 
         ArgumentCaptor<AuthorizationCodeItem> authorizationCodeItemArgumentCaptor =

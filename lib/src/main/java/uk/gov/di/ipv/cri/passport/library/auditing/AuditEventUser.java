@@ -13,8 +13,8 @@ public class AuditEventUser {
     private final String sessionId;
 
     public AuditEventUser(
-            @JsonProperty(value = "user_id", required = false) String userId,
-            @JsonProperty(value = "session_id", required = false) String sessionId) {
+            @JsonProperty(value = "user_id") String userId,
+            @JsonProperty(value = "session_id") String sessionId) {
         this.userId = userId;
         this.sessionId = sessionId;
     }

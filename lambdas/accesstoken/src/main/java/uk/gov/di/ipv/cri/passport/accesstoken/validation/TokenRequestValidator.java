@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 import software.amazon.lambda.powertools.logging.LoggingUtils;
 import uk.gov.di.ipv.cri.passport.accesstoken.domain.ConfigurationServicePublicKeySelector;
 import uk.gov.di.ipv.cri.passport.accesstoken.exceptions.ClientAuthenticationException;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.helpers.JwtHelper;
 import uk.gov.di.ipv.cri.passport.library.helpers.LogHelper;
 import uk.gov.di.ipv.cri.passport.library.helpers.LogHelper.LogField;
 import uk.gov.di.ipv.cri.passport.library.helpers.RequestHelper;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.ClientAuthJwtIdItem;
 import uk.gov.di.ipv.cri.passport.library.service.ClientAuthJwtIdService;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 
 import java.time.OffsetDateTime;
 import java.util.Date;
@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.PASSPORT_CRI_CLIENT_AUDIENCE;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.PASSPORT_CRI_CLIENT_AUTH_MAX_TTL;
 
 public class TokenRequestValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenRequestValidator.class);
@@ -68,7 +71,8 @@ public class TokenRequestValidator {
     private void validateMaxAllowedAuthClientTtl(JWTAuthenticationClaimsSet claimsSet)
             throws InvalidClientException {
         Date expirationTime = claimsSet.getExpirationTime();
-        String maxAllowedTtl = configurationService.getMaxClientAuthTokenTtl();
+        String maxAllowedTtl =
+                configurationService.getSsmParameter(PASSPORT_CRI_CLIENT_AUTH_MAX_TTL);
 
         OffsetDateTime offsetDateTime =
                 OffsetDateTime.now().plusSeconds(Long.parseLong(maxAllowedTtl));
@@ -108,7 +112,10 @@ public class TokenRequestValidator {
                 new ConfigurationServicePublicKeySelector(configurationService);
         return new ClientAuthenticationVerifier<>(
                 configurationServicePublicKeySelector,
-                Set.of(new Audience(configurationService.getAudienceForClients())));
+                Set.of(
+                        new Audience(
+                                configurationService.getSsmParameter(
+                                        PASSPORT_CRI_CLIENT_AUDIENCE))));
     }
 
     private PrivateKeyJWT clientJwtWithConcatSignature(PrivateKeyJWT clientJwt, String requestBody)

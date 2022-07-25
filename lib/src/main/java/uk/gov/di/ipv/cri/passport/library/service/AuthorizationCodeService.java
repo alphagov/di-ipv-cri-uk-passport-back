@@ -3,10 +3,14 @@ package uk.gov.di.ipv.cri.passport.library.service;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.apache.commons.codec.digest.DigestUtils;
 import uk.gov.di.ipv.cri.passport.library.annotations.ExcludeFromGeneratedCoverageReport;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.persistence.DataStore;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.AuthorizationCodeItem;
 
 import java.time.Instant;
+
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.AUTH_CODE_EXPIRY_CODE_SECONDS;
+import static uk.gov.di.ipv.cri.passport.library.config.EnvironmentVariable.CRI_PASSPORT_AUTH_CODES_TABLE_NAME;
 
 public class AuthorizationCodeService {
     private final DataStore<AuthorizationCodeItem> dataStore;
@@ -17,7 +21,8 @@ public class AuthorizationCodeService {
         this.configurationService = configurationService;
         this.dataStore =
                 new DataStore<>(
-                        configurationService.getAuthCodesTableName(),
+                        configurationService.getEnvironmentVariable(
+                                CRI_PASSPORT_AUTH_CODES_TABLE_NAME),
                         AuthorizationCodeItem.class,
                         DataStore.getClient(configurationService.getDynamoDbEndpointOverride()),
                         configurationService);
@@ -71,6 +76,9 @@ public class AuthorizationCodeService {
         return Instant.parse(authCodeItem.getCreationDateTime())
                 .isBefore(
                         Instant.now()
-                                .minusSeconds(configurationService.getAuthCodeExpirySeconds()));
+                                .minusSeconds(
+                                        Long.parseLong(
+                                                configurationService.getSsmParameter(
+                                                        AUTH_CODE_EXPIRY_CODE_SECONDS))));
     }
 }

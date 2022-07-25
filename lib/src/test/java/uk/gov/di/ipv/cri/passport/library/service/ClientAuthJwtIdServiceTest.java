@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ClientAuthJwtIdServiceTest {
-    @Mock private ConfigurationService mockConfigurationService;
     @Mock private DataStore<ClientAuthJwtIdItem> mockDataStore;
     @InjectMocks private ClientAuthJwtIdService clientAuthJwtIdService;
 

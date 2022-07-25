@@ -9,6 +9,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
+import uk.gov.di.ipv.cri.passport.library.config.EnvironmentVariable;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsSignedEncryptedResponse;
 import uk.gov.di.ipv.cri.passport.library.exceptions.EmptyDcsResponseException;
 import uk.gov.di.ipv.cri.passport.library.helpers.HttpClientSetUp;
@@ -20,6 +22,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+
+import static uk.gov.di.ipv.cri.passport.library.config.EnvironmentVariable.DCS_POST_URL_PARAM;
 
 public class PassportService {
 
@@ -45,7 +49,8 @@ public class PassportService {
         this.configurationService = configurationService;
         this.dataStore =
                 new DataStore<>(
-                        this.configurationService.getDcsResponseTableName(),
+                        this.configurationService.getEnvironmentVariable(
+                                EnvironmentVariable.DCS_RESPONSE_TABLE_NAME),
                         PassportCheckDao.class,
                         DataStore.getClient(
                                 this.configurationService.getDynamoDbEndpointOverride()),
@@ -55,7 +60,8 @@ public class PassportService {
 
     public DcsSignedEncryptedResponse dcsPassportCheck(JWSObject payload)
             throws IOException, EmptyDcsResponseException {
-        HttpPost request = new HttpPost(configurationService.getDCSPostUrl());
+        HttpPost request =
+                new HttpPost(configurationService.getEnvironmentVariable(DCS_POST_URL_PARAM));
         request.addHeader(CONTENT_TYPE, APPLICATION_JOSE);
         request.setEntity(new StringEntity(payload.serialize()));
 

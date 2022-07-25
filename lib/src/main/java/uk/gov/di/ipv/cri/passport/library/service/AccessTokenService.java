@@ -13,6 +13,7 @@ import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import uk.gov.di.ipv.cri.passport.library.annotations.ExcludeFromGeneratedCoverageReport;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.helpers.LogHelper;
 import uk.gov.di.ipv.cri.passport.library.persistence.DataStore;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.AccessTokenItem;
@@ -20,6 +21,8 @@ import uk.gov.di.ipv.cri.passport.library.validation.ValidationResult;
 
 import java.time.Instant;
 import java.util.Objects;
+
+import static uk.gov.di.ipv.cri.passport.library.config.EnvironmentVariable.CRI_PASSPORT_ACCESS_TOKENS_TABLE_NAME;
 
 public class AccessTokenService {
     protected static final Scope DEFAULT_SCOPE = new Scope("user-credentials");
@@ -31,7 +34,8 @@ public class AccessTokenService {
         this.configurationService = configurationService;
         this.dataStore =
                 new DataStore<>(
-                        this.configurationService.getAccessTokensTableName(),
+                        this.configurationService.getEnvironmentVariable(
+                                CRI_PASSPORT_ACCESS_TOKENS_TABLE_NAME),
                         AccessTokenItem.class,
                         DataStore.getClient(
                                 this.configurationService.getDynamoDbEndpointOverride()),

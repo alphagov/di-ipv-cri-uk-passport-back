@@ -14,12 +14,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.domain.DcsPayload;
-import uk.gov.di.ipv.cri.passport.library.domain.DcsResponse;
 import uk.gov.di.ipv.cri.passport.library.domain.verifiablecredential.Evidence;
 import uk.gov.di.ipv.cri.passport.library.persistence.DataStore;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportCheckDao;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -122,13 +121,6 @@ public class DateStorePassportCheckIT {
 
     private PassportCheckDao createPassportCheckDao() {
         String resourceId = UUID.randomUUID().toString();
-        DcsResponse dcsResponse =
-                new DcsResponse(
-                        UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString(),
-                        false,
-                        true,
-                        null);
         DcsPayload dcsPayload =
                 new DcsPayload(
                         "passport-number",

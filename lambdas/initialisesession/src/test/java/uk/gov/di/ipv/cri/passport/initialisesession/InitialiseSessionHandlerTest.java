@@ -27,8 +27,6 @@ import uk.gov.di.ipv.cri.passport.library.error.ErrorResponse;
 import uk.gov.di.ipv.cri.passport.library.exceptions.JarValidationException;
 import uk.gov.di.ipv.cri.passport.library.exceptions.RecoverableJarValidationException;
 import uk.gov.di.ipv.cri.passport.library.service.AuditService;
-import uk.gov.di.ipv.cri.passport.library.service.ConfigurationService;
-import uk.gov.di.ipv.cri.passport.library.service.KmsRsaDecrypter;
 import uk.gov.di.ipv.cri.passport.library.service.PassportSessionService;
 import uk.gov.di.ipv.cri.passport.library.validation.JarValidator;
 
@@ -62,10 +60,6 @@ class InitialiseSessionHandlerTest {
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Map<String, String> TEST_EVENT_HEADERS =
             Map.of("passport_session_id", "test-session-id", "client_id", "TEST");
-
-    @Mock private ConfigurationService configurationService;
-
-    @Mock private KmsRsaDecrypter kmsRsaDecrypter;
 
     @Mock private JarValidator jarValidator;
 

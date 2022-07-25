@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.persistence.DataStore;
 import uk.gov.di.ipv.cri.passport.library.persistence.item.AuthorizationCodeItem;
 
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.di.ipv.cri.passport.library.config.ConfigurationVariable.AUTH_CODE_EXPIRY_CODE_SECONDS;
 
 @ExtendWith(MockitoExtension.class)
 class AuthorizationCodeServiceTest {
@@ -115,7 +117,7 @@ class AuthorizationCodeServiceTest {
 
     @Test
     void isExpiredReturnsTrueIfAuthCodeItemHasExpired() {
-        when(configurationService.getAuthCodeExpirySeconds()).thenReturn(600L);
+        when(configurationService.getSsmParameter(AUTH_CODE_EXPIRY_CODE_SECONDS)).thenReturn("600");
         AuthorizationCodeItem expiredAuthCodeItem =
                 new AuthorizationCodeItem(
                         "auth-code",
@@ -129,7 +131,7 @@ class AuthorizationCodeServiceTest {
 
     @Test
     void isExpiredReturnsFalseIfAuthCodeItemHasNotExpired() {
-        when(configurationService.getAuthCodeExpirySeconds()).thenReturn(600L);
+        when(configurationService.getSsmParameter(AUTH_CODE_EXPIRY_CODE_SECONDS)).thenReturn("600");
         AuthorizationCodeItem expiredAuthCodeItem =
                 new AuthorizationCodeItem(
                         "auth-code",

@@ -74,9 +74,7 @@ class VerifiableCredentialTest {
         assertEquals(
                 EVIDENCE_TYPE_IDENTITY_CHECK, verifiableCredential.getEvidence().get(0).getType());
         assertDoesNotThrow(
-                () ->
-                        UUID.fromString(
-                                verifiableCredential.getEvidence().get(0).getTxn().toString()));
+                () -> UUID.fromString(verifiableCredential.getEvidence().get(0).getTxn()));
         assertEquals(4, verifiableCredential.getEvidence().get(0).getStrengthScore());
         assertEquals(2, verifiableCredential.getEvidence().get(0).getValidityScore());
     }

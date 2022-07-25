@@ -37,7 +37,7 @@ class RequestHelperTest {
     }
 
     @Test
-    void getPassportSessionIdShouldThrowIfSessionIdNotFound() throws Exception {
+    void getPassportSessionIdShouldThrowIfSessionIdNotFound() {
         var event = new APIGatewayProxyRequestEvent();
         event.setHeaders(Map.of("passport_session_id", ""));
 

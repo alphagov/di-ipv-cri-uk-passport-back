@@ -13,8 +13,8 @@ public class AuditExtensionsVcEvidence implements AuditExtensions {
     private final List<Evidence> evidence;
 
     public AuditExtensionsVcEvidence(
-            @JsonProperty(value = "iss", required = false) String iss,
-            @JsonProperty(value = "evidence", required = false) List<Evidence> evidence) {
+            @JsonProperty(value = "iss") String iss,
+            @JsonProperty(value = "evidence") List<Evidence> evidence) {
         this.iss = iss;
         this.evidence = evidence;
     }

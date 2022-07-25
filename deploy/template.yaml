@@ -179,9 +179,6 @@ Resources:
           ENVIRONMENT: !Sub "${Environment}"
           DCS_RESPONSE_TABLE_NAME: !Select [1, !Split ['/', !GetAtt DCSResponseTable.Arn]]
           CRI_PASSPORT_ACCESS_TOKENS_TABLE_NAME: !Select [1, !Split ['/', !GetAtt CRIPassportAccessTokensTable.Arn]]
-          VERIFIABLE_CREDENTIAL_SIGNING_KEY_ID_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/verifiableCredentialKmsSigningKeyId"
-          MAX_JWT_TTL: !Sub "/${Environment}/credentialIssuers/ukPassport/self/maxJwtTtl"
-          VERIFIABLE_CREDENTIAL_ISSUER_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/verifiableCredentialIssuer"
           SQS_AUDIT_EVENT_QUEUE_URL: !ImportValue AuditEventQueueUrl
           CREDENTIAL_ISSUERS_CONFIG_PARAM_PREFIX: !Sub "/${Environment}/credentialIssuers/ukPassport/clients"
           PASSPORT_BACK_SESSIONS_TABLE_NAME: !Ref CRIPassportBackSessionsTable
@@ -346,22 +343,10 @@ Resources:
           ENVIRONMENT: !Sub "${Environment}"
           DCS_RESPONSE_TABLE_NAME: !Select [1, !Split ['/', !GetAtt DCSResponseTable.Arn]]
           CRI_PASSPORT_ACCESS_TOKENS_TABLE_NAME: !Select [1, !Split ['/', !GetAtt CRIPassportAccessTokensTable.Arn]]
-          DCS_ENCRYPTION_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/dcs/encryptionCertForPassportToEncrypt"
-          DCS_SIGNING_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/dcs/signingCertForPassportToVerify"
-          PASSPORT_CRI_SIGNING_KEY_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/signingKeyForPassportToSign"
-          PASSPORT_CRI_ENCRYPTION_KEY_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/encryptionKeyForPassportToDecrypt"
-          PASSPORT_CRI_TLS_KEY_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/tlsKey"
-          PASSPORT_CRI_SIGNING_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/signingCertForDcsToVerify"
-          PASSPORT_CRI_ENCRYPTION_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/encryptionCertForDcsToEncrypt"
-          PASSPORT_CRI_TLS_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/tlsCert"
           DCS_POST_URL_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/dcs/postUrl"
-          DCS_TLS_ROOT_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/dcs/tlsRootCertificate"
-          DCS_TLS_INTERMEDIATE_CERT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/dcs/tlsIntermediateCertificate"
           CREDENTIAL_ISSUERS_CONFIG_PARAM_PREFIX: !Sub "/${Environment}/credentialIssuers/ukPassport/clients"
-          VERIFIABLE_CREDENTIAL_ISSUER_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/verifiableCredentialIssuer"
           SQS_AUDIT_EVENT_QUEUE_URL: !ImportValue AuditEventQueueUrl
           PASSPORT_BACK_SESSIONS_TABLE_NAME: !Ref CRIPassportBackSessionsTable
-          MAXIMUM_ATTEMPT_COUNT_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/maximumAttemptCount"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DCSResponseTable
@@ -509,12 +494,7 @@ Resources:
           ENVIRONMENT: !Sub "${Environment}"
           PASSPORT_BACK_SESSIONS_TABLE_NAME: !Select [ 1, !Split [ '/', !GetAtt CRIPassportBackSessionsTable.Arn ] ]
           CREDENTIAL_ISSUERS_CONFIG_PARAM_PREFIX: !Sub "/${Environment}/credentialIssuers/ukPassport/clients"
-          PASSPORT_CRI_CLIENT_AUDIENCE: !Sub "/${Environment}/credentialIssuers/ukPassport/self/audienceForClients"
-          PASSPORT_CRI_CLIENT_AUTH_MAX_TTL: !Sub "/${Environment}/credentialIssuers/ukPassport/self/maxJwtTtl"
           SQS_AUDIT_EVENT_QUEUE_URL: !ImportValue AuditEventQueueUrl
-          JAR_ENCRYPTION_KEY_ID_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/jarKmsEncryptionKeyId"
-          # for use in the integration-test
-          JAR_KMS_PUBLIC_KEY_PARAM: !Sub "/${Environment}/credentialIssuers/ukPassport/self/jarKmsEncryptionPublicKey"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref CRIPassportBackSessionsTable

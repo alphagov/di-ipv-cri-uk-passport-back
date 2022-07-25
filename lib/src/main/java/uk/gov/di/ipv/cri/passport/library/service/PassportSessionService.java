@@ -2,6 +2,7 @@ package uk.gov.di.ipv.cri.passport.library.service;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import uk.gov.di.ipv.cri.passport.library.annotations.ExcludeFromGeneratedCoverageReport;
+import uk.gov.di.ipv.cri.passport.library.config.ConfigurationService;
 import uk.gov.di.ipv.cri.passport.library.domain.AuthParams;
 import uk.gov.di.ipv.cri.passport.library.helpers.LogHelper;
 import uk.gov.di.ipv.cri.passport.library.helpers.SecureTokenHelper;
@@ -10,6 +11,8 @@ import uk.gov.di.ipv.cri.passport.library.persistence.item.PassportSessionItem;
 
 import java.text.ParseException;
 import java.time.Instant;
+
+import static uk.gov.di.ipv.cri.passport.library.config.EnvironmentVariable.PASSPORT_BACK_SESSIONS_TABLE_NAME;
 
 public class PassportSessionService {
     private static final String RESPONSE_TYPE = "response_type";
@@ -25,7 +28,8 @@ public class PassportSessionService {
         this.configurationService = configurationService;
         this.dataStore =
                 new DataStore<>(
-                        this.configurationService.getPassportBackSessionsTableName(),
+                        this.configurationService.getEnvironmentVariable(
+                                PASSPORT_BACK_SESSIONS_TABLE_NAME),
                         PassportSessionItem.class,
                         DataStore.getClient(
                                 this.configurationService.getDynamoDbEndpointOverride()),
